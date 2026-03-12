@@ -6,23 +6,20 @@ const LoginPage = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    setError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
     try {
       await login(form);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      // Error is handled by toast in AuthContext
     } finally {
       setLoading(false);
     }
@@ -38,12 +35,6 @@ const LoginPage = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
-          {error && (
-            <div className="alert alert-error">
-              <span className="alert-icon">⚠</span>
-              {error}
-            </div>
-          )}
 
           <div className="form-group">
             <label htmlFor="email">Email address</label>
