@@ -1,7 +1,7 @@
 {
 	"info": {
-		"name": "UserHub API",
-		"description": "Postman collection for testing the UserHub full-stack application.",
+		"name": "NoteFlow API",
+		"description": "Comprehensive Postman collection for the NoteFlow Manager application.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -9,29 +9,165 @@
 			"name": "Auth",
 			"item": [
 				{
-					"name": "Register",
+					"name": "1. Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"token\", jsonData.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"test@example.com\",\n    \"password\": \"password123\"\n}",
-							"options": { "raw": { "language": "json" } }
+							"raw": "{\n    \"name\": \"Aarav Sharma\",\n    \"email\": \"aarav.sharma@example.in\",\n    \"password\": \"Password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
-						"url": "http://localhost:5000/auth/register"
+						"url": "{{base_url}}/auth/register"
 					}
 				},
 				{
-					"name": "Login",
+					"name": "2. Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"token\", jsonData.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"password123\"\n}",
-							"options": { "raw": { "language": "json" } }
+							"raw": "{\n    \"email\": \"aarav.sharma@example.in\",\n    \"password\": \"Password123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
-						"url": "http://localhost:5000/auth/login"
+						"url": "{{base_url}}/auth/login"
+					}
+				},
+				{
+					"name": "3. Get My Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": "{{base_url}}/auth/me"
+					}
+				}
+			]
+		},
+		{
+			"name": "Notes",
+			"item": [
+				{
+					"name": "Create Note",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Prepare for UPSC interview\",\n    \"content\": \"Read current affairs and ethics case studies. Focus on latest policies.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/notes"
+					}
+				},
+				{
+					"name": "Get All My Notes",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": "{{base_url}}/notes"
+					}
+				},
+				{
+					"name": "Get Note By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"							}
+						],
+						"url": "{{base_url}}/notes/1"
+					}
+				},
+				{
+					"name": "Update Note",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Prepare for UPSC interview (Updated)\",\n    \"content\": \"Revised focus: Governance and International Relations.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/notes/1"
+					}
+				},
+				{
+					"name": "Delete Note",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": "{{base_url}}/notes/1"
 					}
 				}
 			]
@@ -40,22 +176,73 @@
 			"name": "Users",
 			"item": [
 				{
-					"name": "Get All Users",
+					"name": "List All Users",
 					"request": {
 						"method": "GET",
 						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" }
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
 						],
 						"url": {
-							"raw": "http://localhost:5000/users?page=1&limit=10&search=",
-							"host": ["http://localhost:5000"],
-							"path": ["users"],
+							"raw": "{{base_url}}/users?page=1&limit=10&search=",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							],
 							"query": [
-								{ "key": "page", "value": "1" },
-								{ "key": "limit", "value": "10" },
-								{ "key": "search", "value": "" }
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "search",
+									"value": ""
+								}
 							]
 						}
+					}
+				},
+				{
+					"name": "Get User By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": "{{base_url}}/users/1"
+					}
+				},
+				{
+					"name": "Create User Admin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Priya Patel\",\n    \"email\": \"priya.patel@email.in\",\n    \"password\": \"SecurePass789\",\n    \"role\": \"admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{base_url}}/users"
 					}
 				},
 				{
@@ -63,12 +250,25 @@
 					"request": {
 						"method": "DELETE",
 						"header": [
-							{ "key": "Authorization", "value": "Bearer {{token}}" }
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
 						],
-						"url": "http://localhost:5000/users/1"
+						"url": "{{base_url}}/users/1"
 					}
 				}
 			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000"
+		},
+		{
+			"key": "token",
+			"value": ""
 		}
 	]
 }
