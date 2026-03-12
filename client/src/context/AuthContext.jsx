@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }) => {
   });
   const [token, setToken] = useState(() => localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
-
+  
   // Verify token on mount
   useEffect(() => {
     const verifyToken = async () => {
@@ -44,10 +44,11 @@ export const AuthProvider = ({ children }) => {
       setToken(newToken);
       localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(userData));
+      
       toast.success(`Welcome back, ${userData.name}!`);
       return userData;
     } catch (error) {
-      const message = error.response?.data?.message || 'Login failed';
+      const message = error.response?.data?.message || 'Login failed. Please check your credentials.';
       toast.error(message);
       throw error;
     }
@@ -61,10 +62,11 @@ export const AuthProvider = ({ children }) => {
       setToken(newToken);
       localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(userData));
+      
       toast.success('Account created successfully!');
       return userData;
     } catch (error) {
-      const message = error.response?.data?.message || 'Registration failed';
+      const message = error.response?.data?.message || 'Registration failed. Please try again.';
       toast.error(message);
       throw error;
     }
@@ -75,10 +77,14 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    toast.success('Logged out successfully');
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ 
+      user, token, loading, login, register, logout, 
+      isAuthenticated: !!user
+    }}>
       {children}
     </AuthContext.Provider>
   );
