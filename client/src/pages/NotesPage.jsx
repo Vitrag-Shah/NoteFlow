@@ -5,6 +5,7 @@ import 'react-quill/dist/quill.snow.css';
 import toast from 'react-hot-toast';
 import { notesAPI } from '../api/services';
 import { useAuth } from '../context/AuthContext';
+import { Icons } from '../components/Icons';
 
 const NotesPage = () => {
   const { user: currentUser, logout } = useAuth();
@@ -15,6 +16,7 @@ const NotesPage = () => {
   const [modal, setModal] = useState({ open: false, mode: 'create', note: null });
   const [form, setForm] = useState({ title: '', content: '' });
   const [formLoading, setFormLoading] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const fetchNotes = useCallback(async () => {
     setLoading(true);
@@ -22,7 +24,7 @@ const NotesPage = () => {
       const res = await notesAPI.getAll();
       setNotes(res.data.data);
     } catch (err) {
-      toast.error('Failed to load notes');
+      toast.error('Could not sync your notes with the cloud.');
     } finally {
       setLoading(false);
     }
@@ -54,7 +56,7 @@ const NotesPage = () => {
     try {
       if (modal.mode === 'create') {
         await notesAPI.create(form);
-        toast.success('Note created!');
+        toast.success('Note saved!');
       } else {
         await notesAPI.update(modal.note.id, form);
         toast.success('Note updated!');
@@ -62,20 +64,25 @@ const NotesPage = () => {
       closeModal();
       fetchNotes();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Operation failed');
+      toast.error(err.response?.data?.message || 'Something went wrong while saving.');
     } finally {
       setFormLoading(false);
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this note?')) return;
+  const deleteNote = async (id) => {
     try {
       await notesAPI.delete(id);
       toast.success('Note deleted');
       fetchNotes();
     } catch (err) {
-      toast.error('Delete failed');
+      toast.error('We could not delete this note right now.');
+    }
+  };
+
+  const handleDelete = (id) => {
+    if (window.confirm('Are you sure? This note will be permanently removed.')) {
+      deleteNote(id);
     }
   };
 
@@ -89,28 +96,56 @@ const NotesPage = () => {
   };
 
   return (
-    <div className="dashboard-layout">
+    <div className={`dashboard-layout ${sidebarOpen ? 'sidebar-open' : ''}`}>
+      {/* Mobile Backdrop */}
+      {sidebarOpen && <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />}
+
       <aside className="sidebar">
         <div className="sidebar-brand">
-          <span className="brand-icon">📝</span>
+          <Icons.Note className="brand-icon" size={24} />
           <span className="brand-name">NoteFlow</span>
+          <button className="mobile-sidebar-close" onClick={() => setSidebarOpen(false)}>
+            <Icons.Close size={20} />
+          </button>
         </div>
         <nav className="sidebar-nav">
-          <Link to="/dashboard" className="nav-item">🏠 Dashboard</Link>
-          <Link to="/notes" className="nav-item active">📝 My Notes</Link>
+          <Link to="/dashboard" className="nav-item">
+            <Icons.Home size={18} />
+            <span>Dashboard</span>
+          </Link>
+          <Link to="/notes" className="nav-item active">
+            <Icons.Note size={18} />
+            <span>My Notes</span>
+          </Link>
         </nav>
         <div className="sidebar-footer">
-          <button className="btn btn-logout" onClick={() => { logout(); navigate('/login'); }}>Sign Out</button>
+          <div className="sidebar-user">
+            <div className="user-avatar">{currentUser?.name?.[0]?.toUpperCase()}</div>
+            <div className="user-info">
+              <div className="user-name">{currentUser?.name}</div>
+              <div className="user-email">{currentUser?.email}</div>
+            </div>
+          </div>
+          <button className="btn btn-logout" onClick={() => { logout(); navigate('/login'); }}>
+            <Icons.Logout size={16} />
+            <span>Sign Out</span>
+          </button>
         </div>
       </aside>
 
       <main className="dashboard-main">
         <header className="dashboard-header">
-          <div>
+          <button className="mobile-toggle" onClick={() => setSidebarOpen(true)}>
+            <Icons.Menu />
+          </button>
+          <div className="header-text">
             <h1 className="page-title">Personal Notes</h1>
             <p className="page-subtitle">Manage your thoughts and ideas with rich text.</p>
           </div>
-          <button className="btn btn-primary" onClick={openCreate}>+ New Note</button>
+          <button className="btn btn-primary" onClick={openCreate}>
+            <Icons.Plus size={18} />
+            <span>New Note</span>
+          </button>
         </header>
 
         <div className="notes-grid">
@@ -118,6 +153,7 @@ const NotesPage = () => {
             <div className="spinner-container"><div className="spinner"></div></div>
           ) : notes.length === 0 ? (
             <div className="empty-state">
+              <Icons.Note size={48} className="text-muted" />
               <p>No notes yet. Start writing!</p>
               <button className="btn btn-secondary" onClick={openCreate}>Create Note</button>
             </div>
@@ -127,8 +163,12 @@ const NotesPage = () => {
                 <h3>{note.title}</h3>
                 <div className="note-preview" dangerouslySetInnerHTML={{ __html: note.content.substring(0, 100) + '...' }} />
                 <div className="note-actions">
-                  <button onClick={() => openEdit(note)}>Edit</button>
-                  <button className="btn-danger" onClick={() => handleDelete(note.id)}>Delete</button>
+                  <button onClick={() => openEdit(note)} title="Edit Note">
+                    <Icons.Edit size={16} />
+                  </button>
+                  <button className="btn-note-danger" onClick={() => handleDelete(note.id)} title="Delete Note">
+                    <Icons.Trash size={16} />
+                  </button>
                 </div>
               </div>
             ))
@@ -141,7 +181,9 @@ const NotesPage = () => {
           <div className="modal modal-lg" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <h2>{modal.mode === 'create' ? 'Create Note' : 'Edit Note'}</h2>
-              <button onClick={closeModal}>✕</button>
+              <button onClick={closeModal} className="btn-close">
+                <Icons.Close size={20} />
+              </button>
             </div>
             <form onSubmit={handleFormSubmit} className="modal-form">
               <div className="form-group">
@@ -167,7 +209,8 @@ const NotesPage = () => {
               <div className="modal-actions">
                 <button type="button" className="btn btn-ghost" onClick={closeModal}>Cancel</button>
                 <button type="submit" className="btn btn-primary" disabled={formLoading}>
-                  {formLoading ? 'Saving...' : 'Save Note'}
+                  <Icons.Check size={18} />
+                  <span>{formLoading ? 'Saving...' : 'Save Note'}</span>
                 </button>
               </div>
             </form>

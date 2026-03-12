@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { notesAPI } from '../api/services';
+import { Icons } from '../components/Icons';
 import toast from 'react-hot-toast';
 
 const DashboardPage = () => {
@@ -10,6 +11,7 @@ const DashboardPage = () => {
   const [noteCount, setNoteCount] = useState(0);
   const [recentNotes, setRecentNotes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -18,7 +20,7 @@ const DashboardPage = () => {
         setNoteCount(res.data.data.length);
         setRecentNotes(res.data.data.slice(0, 3));
       } catch (err) {
-        toast.error('Could not load dashboard data');
+        toast.error('We had trouble gathering your dashboard data.');
       } finally {
         setLoading(false);
       }
@@ -32,22 +34,34 @@ const DashboardPage = () => {
   };
 
   const stats = [
-    { label: 'Total Notes', value: noteCount, icon: '📝', color: 'indigo' },
-    { label: 'Account Type', value: 'Free Plan', icon: '⭐', color: 'amber' },
-    { label: 'Cloud Storage', value: 'Syncing', icon: '☁️', color: 'blue' },
-    { label: 'Member Since', value: new Date(user?.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }), icon: '📅', color: 'purple' },
+    { label: 'Total Notes', value: noteCount, icon: <Icons.Note />, color: 'indigo' },
+    { label: 'Account Type', value: 'Free Plan', icon: <Icons.Star />, color: 'amber' },
+    { label: 'Cloud Storage', value: 'Syncing', icon: <Icons.Cloud />, color: 'blue' },
+    { label: 'Member Since', value: new Date(user?.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }), icon: <Icons.Calendar />, color: 'purple' },
   ];
 
   return (
-    <div className="dashboard-layout">
+    <div className={`dashboard-layout ${sidebarOpen ? 'sidebar-open' : ''}`}>
+      {/* Mobile Backdrop */}
+      {sidebarOpen && <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />}
+      
       <aside className="sidebar">
         <div className="sidebar-brand">
-          <span className="brand-icon">📝</span>
+          <Icons.Note className="brand-icon" size={24} />
           <span className="brand-name">NoteFlow</span>
+          <button className="mobile-sidebar-close" onClick={() => setSidebarOpen(false)}>
+            <Icons.Close size={20} />
+          </button>
         </div>
         <nav className="sidebar-nav">
-          <Link to="/dashboard" className="nav-item active">🏠 Dashboard</Link>
-          <Link to="/notes" className="nav-item">📝 My Notes</Link>
+          <Link to="/dashboard" className="nav-item active">
+            <Icons.Home size={18} />
+            <span>Dashboard</span>
+          </Link>
+          <Link to="/notes" className="nav-item">
+            <Icons.Note size={18} />
+            <span>My Notes</span>
+          </Link>
         </nav>
         <div className="sidebar-footer">
           <div className="sidebar-user">
@@ -57,17 +71,26 @@ const DashboardPage = () => {
               <div className="user-email">{user?.email}</div>
             </div>
           </div>
-          <button className="btn btn-logout" onClick={handleLogout}>Sign Out</button>
+          <button className="btn btn-logout" onClick={handleLogout}>
+            <Icons.Logout size={16} />
+            <span>Sign Out</span>
+          </button>
         </div>
       </aside>
 
       <main className="dashboard-main">
         <header className="dashboard-header">
-          <div>
+          <button className="mobile-toggle" onClick={() => setSidebarOpen(true)}>
+            <Icons.Menu />
+          </button>
+          <div className="header-text">
             <h1 className="page-title">Dashboard</h1>
             <p className="page-subtitle">Welcome back, <strong>{user?.name}</strong>. You have {noteCount} notes.</p>
           </div>
-          <Link to="/notes" className="btn btn-primary">Create New Note →</Link>
+          <Link to="/notes" className="btn btn-primary">
+            <Icons.Plus size={16} />
+            <span>New Note</span>
+          </Link>
         </header>
 
         <div className="stats-grid">
@@ -82,25 +105,25 @@ const DashboardPage = () => {
           ))}
         </div>
 
-        <div className="dashboard-content-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '28px' }}>
+        <div className="dashboard-content-grid">
           <section className="profile-card">
             <h2 className="section-title">Recent Notes</h2>
             {loading ? <p>Loading...</p> : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div className="recent-note-list">
                 {recentNotes.length > 0 ? recentNotes.map(note => (
-                  <div key={note.id} style={{ padding: '16px', background: 'var(--bg-surface)', borderRadius: '8px', border: '1px solid var(--border)' }}>
-                    <h4 style={{ margin: 0 }}>{note.title}</h4>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Updated {new Date(note.updatedAt).toLocaleDateString()}</span>
+                  <div key={note.id} className="recent-note-card">
+                    <h4>{note.title}</h4>
+                    <span>Updated {new Date(note.updatedAt).toLocaleDateString()}</span>
                   </div>
                 )) : <p className="text-muted">No notes yet. Create your first one!</p>}
-                <Link to="/notes" style={{ fontSize: '0.85rem', color: 'var(--accent)', fontWeight: 600 }}>See all notes →</Link>
+                <Link to="/notes" className="link-more">See all notes →</Link>
               </div>
             )}
           </section>
 
           <section className="profile-card">
             <h2 className="section-title">Your Profile</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div className="profile-info-list">
               <div>
                 <div className="field-label">Name</div>
                 <div className="field-value">{user?.name}</div>

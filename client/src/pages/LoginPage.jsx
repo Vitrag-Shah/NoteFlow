@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Icons } from '../components/Icons';
 
 const LoginPage = () => {
   const { login } = useAuth();
@@ -29,7 +30,9 @@ const LoginPage = () => {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <div className="auth-logo">⚡</div>
+          <div className="auth-logo">
+            <Icons.Note size={32} />
+          </div>
           <h1>Welcome back</h1>
           <p>Sign in to your account to continue</p>
         </div>

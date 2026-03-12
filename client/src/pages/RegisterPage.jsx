@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import { Icons } from '../components/Icons';
 
 const RegisterPage = () => {
   const { register } = useAuth();
@@ -34,7 +35,9 @@ const RegisterPage = () => {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <div className="auth-logo">⚡</div>
+          <div className="auth-logo">
+            <Icons.Note size={32} />
+          </div>
           <h1>Create account</h1>
           <p>Join us today — it&apos;s free</p>
         </div>
