@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { usersAPI } from '../api/services';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { Icons } from '../components/Icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
@@ -11,6 +12,7 @@ const EMPTY_FORM = { name: '', email: '', password: '', role: 'user' };
 
 const UsersPage = () => {
   const { user: currentUser, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const [users, setUsers] = useState([]);
@@ -119,6 +121,14 @@ const UsersPage = () => {
         <div className="sidebar-brand">
           <Icons.Note className="brand-icon" size={24} />
           <span className="brand-name">NoteFlow</span>
+          <button 
+            className="btn btn-theme" 
+            onClick={toggleTheme} 
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            style={{ marginLeft: 'auto', marginRight: '8px' }}
+          >
+            {theme === 'dark' ? <Icons.Sun size={18} /> : <Icons.Moon size={18} />}
+          </button>
           <button className="mobile-sidebar-close" onClick={() => setSidebarOpen(false)}>
             <Icons.Close size={20} />
           </button>

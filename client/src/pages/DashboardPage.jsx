@@ -5,10 +5,12 @@ import { notesAPI } from '../api/services';
 import { Icons } from '../components/Icons';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
+import { useTheme } from '../context/ThemeContext';
 import toast from 'react-hot-toast';
 
 const DashboardPage = () => {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [noteCount, setNoteCount] = useState(0);
   const [recentNotes, setRecentNotes] = useState([]);
@@ -66,6 +68,14 @@ const DashboardPage = () => {
         <div className="sidebar-brand">
           <Icons.Note className="brand-icon" size={24} />
           <span className="brand-name">NoteFlow</span>
+          <button 
+            className="btn btn-theme" 
+            onClick={toggleTheme} 
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            style={{ marginLeft: 'auto', marginRight: '8px' }}
+          >
+            {theme === 'dark' ? <Icons.Sun size={18} /> : <Icons.Moon size={18} />}
+          </button>
           <button className="mobile-sidebar-close" onClick={() => setSidebarOpen(false)}>
             <Icons.Close size={20} />
           </button>

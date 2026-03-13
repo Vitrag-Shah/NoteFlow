@@ -7,10 +7,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import { notesAPI } from '../api/services';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { Icons } from '../components/Icons';
 
 const NotesPage = () => {
   const { user: currentUser, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   const [notes, setNotes] = useState([]);
@@ -132,6 +134,14 @@ const NotesPage = () => {
         <div className="sidebar-brand">
           <Icons.Note className="brand-icon" size={24} />
           <span className="brand-name">NoteFlow</span>
+          <button 
+            className="btn btn-theme" 
+            onClick={toggleTheme} 
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            style={{ marginLeft: 'auto', marginRight: '8px' }}
+          >
+            {theme === 'dark' ? <Icons.Sun size={18} /> : <Icons.Moon size={18} />}
+          </button>
           <button className="mobile-sidebar-close" onClick={() => setSidebarOpen(false)}>
             <Icons.Close size={20} />
           </button>
