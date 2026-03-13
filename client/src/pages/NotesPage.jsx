@@ -1,8 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import toast from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
+import { formatDistanceToNow } from 'date-fns';
 import { notesAPI } from '../api/services';
 import { useAuth } from '../context/AuthContext';
 import { Icons } from '../components/Icons';
@@ -17,6 +19,8 @@ const NotesPage = () => {
   const [form, setForm] = useState({ title: '', content: '' });
   const [formLoading, setFormLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
 
   const fetchNotes = useCallback(async () => {
     setLoading(true);
@@ -33,6 +37,30 @@ const NotesPage = () => {
   useEffect(() => {
     fetchNotes();
   }, [fetchNotes]);
+
+  const filteredAndSortedNotes = useMemo(() => {
+    let result = [...notes];
+
+    // Search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(note => 
+        note.title.toLowerCase().includes(query) || 
+        note.content.toLowerCase().includes(query)
+      );
+    }
+
+    // Sort
+    result.sort((a, b) => {
+      if (sortBy === 'newest') return new Date(b.updatedAt) - new Date(a.updatedAt);
+      if (sortBy === 'oldest') return new Date(a.updatedAt) - new Date(b.updatedAt);
+      if (sortBy === 'az') return a.title.localeCompare(b.title);
+      if (sortBy === 'za') return b.title.localeCompare(a.title);
+      return 0;
+    });
+
+    return result;
+  }, [notes, searchQuery, sortBy]);
 
   const openCreate = () => {
     setForm({ title: '', content: '' });
@@ -117,6 +145,12 @@ const NotesPage = () => {
             <Icons.Note size={18} />
             <span>My Notes</span>
           </Link>
+          {currentUser?.role === 'admin' && (
+            <Link to="/users" className="nav-item">
+              <Icons.User size={18} />
+              <span>Users</span>
+            </Link>
+          )}
         </nav>
         <div className="sidebar-footer">
           <div className="sidebar-user">
@@ -148,37 +182,96 @@ const NotesPage = () => {
           </button>
         </header>
 
-        <div className="notes-grid">
-          {loading ? (
-            <div className="spinner-container"><div className="spinner"></div></div>
-          ) : notes.length === 0 ? (
-            <div className="empty-state">
-              <Icons.Note size={48} className="text-muted" />
-              <p>No notes yet. Start writing!</p>
-              <button className="btn btn-secondary" onClick={openCreate}>Create Note</button>
-            </div>
-          ) : (
-            notes.map(note => (
-              <div key={note.id} className="note-card">
-                <h3>{note.title}</h3>
-                <div className="note-preview" dangerouslySetInnerHTML={{ __html: note.content.substring(0, 100) + '...' }} />
-                <div className="note-actions">
-                  <button onClick={() => openEdit(note)} title="Edit Note">
-                    <Icons.Edit size={16} />
-                  </button>
-                  <button className="btn-note-danger" onClick={() => handleDelete(note.id)} title="Delete Note">
-                    <Icons.Trash size={16} />
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
+        <div className="notes-controls">
+          <div className="search-wrapper">
+            <Icons.Search className="search-icon" size={20} />
+            <input 
+              type="text" 
+              placeholder="Search notes by title or content..." 
+              className="search-input"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="sort-wrapper">
+            <span className="text-muted">Sort:</span>
+            <select 
+              className="sort-select"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="az">A - Z</option>
+              <option value="za">Z - A</option>
+            </select>
+          </div>
         </div>
+
+        {loading ? (
+          <div className="spinner-container"><div className="spinner"></div></div>
+        ) : filteredAndSortedNotes.length === 0 ? (
+          <div className="empty-state-container">
+            <Icons.Note size={48} className="text-muted" style={{ marginBottom: '16px' }} />
+            {searchQuery ? (
+              <>
+                <h3>No matches found</h3>
+                <p className="text-muted">Try adjusting your search or filters.</p>
+                <button className="btn btn-ghost" onClick={() => setSearchQuery('')} style={{ marginTop: '12px' }}>Clear Search</button>
+              </>
+            ) : (
+              <>
+                <h3>No notes yet</h3>
+                <p className="text-muted">Your thoughts belong here. Start writing something amazing!</p>
+                <button className="btn btn-secondary" onClick={openCreate} style={{ marginTop: '12px' }}>Create Note</button>
+              </>
+            )}
+          </div>
+        ) : (
+          <motion.div 
+            layout
+            className="notes-grid"
+          >
+            <AnimatePresence mode='popLayout'>
+              {filteredAndSortedNotes.map(note => (
+                <motion.div 
+                  key={note.id} 
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.2 }}
+                  className="note-card"
+                >
+                  <div className="note-meta">
+                    <Icons.Clock size={14} />
+                    <span>{formatDistanceToNow(new Date(note.updatedAt), { addSuffix: true })}</span>
+                  </div>
+                  <h3>{note.title}</h3>
+                  <div className="note-preview" dangerouslySetInnerHTML={{ __html: note.content.substring(0, 150) + '...' }} />
+                  <div className="note-actions">
+                    <button onClick={() => openEdit(note)} title="Edit Note">
+                      <Icons.Edit size={16} />
+                    </button>
+                    <button className="btn-note-danger" onClick={() => handleDelete(note.id)} title="Delete Note">
+                      <Icons.Trash size={16} />
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        )}
       </main>
 
       {modal.open && (
         <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal modal-lg" onClick={e => e.stopPropagation()}>
+          <motion.div 
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            className="modal modal-lg" 
+            onClick={e => e.stopPropagation()}
+          >
             <div className="modal-header">
               <h2>{modal.mode === 'create' ? 'Create Note' : 'Edit Note'}</h2>
               <button onClick={closeModal} className="btn-close">
@@ -214,7 +307,7 @@ const NotesPage = () => {
                 </button>
               </div>
             </form>
-          </div>
+          </motion.div>
         </div>
       )}
     </div>
