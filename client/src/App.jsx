@@ -9,6 +9,7 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import NotesPage from './pages/NotesPage';
 import UsersPage from './pages/UsersPage';
+import GamePage from './pages/GamePage';
 
 function App() {
   return (
@@ -57,6 +58,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <UsersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/game"
+              element={
+                <ProtectedRoute>
+                  <GamePage />
                 </ProtectedRoute>
               }
             />

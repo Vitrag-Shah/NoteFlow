@@ -117,4 +117,13 @@ export const Icons = {
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
     </svg>
   ),
+  Gamepad: ({ size = 20, className = '' }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <line x1="6" y1="12" x2="10" y2="12" />
+      <line x1="8" y1="10" x2="8" y2="14" />
+      <rect x="15" y="13" width="1" height="1" rx="0.5" />
+      <rect x="18" y="10" width="1" height="1" rx="0.5" />
+      <path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.01.149L2 15a4 4 0 0 0 4 4h.5a2 2 0 0 1 1.625.838l.512.768A2 2 0 0 0 10.293 21h3.414a2 2 0 0 0 1.656-.894l.512-.768A2 2 0 0 1 17.5 19h.5a4 4 0 0 0 4-4l-.712-6.261C21.284 5.753 19.336 5 17.32 5Z" />
+    </svg>
+  ),
 };

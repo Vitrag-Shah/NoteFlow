@@ -148,6 +148,10 @@ const UsersPage = () => {
               <span>Users</span>
             </Link>
           )}
+          <Link to="/game" className="nav-item">
+            <Icons.Gamepad size={18} />
+            <span>Game Zone</span>
+          </Link>
         </nav>
         <div className="sidebar-footer">
           <div className="sidebar-user">
