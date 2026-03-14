@@ -72,6 +72,15 @@ app.set('io', io);
 
 io.on('connection', (socket) => {
   console.log('⚡ A user connected via Socket.IO');
+  
+  // Allow user to join a room specific to their ID for targeted events
+  socket.on('join', (userId) => {
+    if (userId) {
+      socket.join(`user_${userId}`);
+      console.log(`👤 User ${userId} joined their notification room`);
+    }
+  });
+
   socket.on('disconnect', () => {
     console.log('🔴 User disconnected');
   });

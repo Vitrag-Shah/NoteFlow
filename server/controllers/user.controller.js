@@ -209,10 +209,10 @@ const deleteUser = async (req, res, next) => {
       data: { isBanned: true }
     });
 
-    // Emit socket event to notify the banned user
+    // Emit socket event to notify the banned user specifically in their room
     const io = req.app.get('io');
     if (io) {
-      io.emit('user_banned', { userId: Number(id) });
+      io.to(`user_${id}`).emit('user_banned', { userId: Number(id) });
     }
 
     return successResponse(res, null, 'User banned successfully');

@@ -45,18 +45,21 @@ export const AuthProvider = ({ children }) => {
     const socketURL = import.meta.env.DEV ? "http://localhost:5000" : "/";
     const socket = io(socketURL);
 
+    // Join room for targeted notifications
+    socket.on('connect', () => {
+      socket.emit('join', user.id);
+    });
+
     socket.on('user_banned', (data) => {
-      if (data.userId === user.id) {
-        // Log out immediately
-        setUser(null);
-        setToken(null);
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        
-        // Use a popup to notify them
-        window.alert("You are banned by the system administrator.");
-        window.location.href = '/login';
-      }
+      // Log out immediately
+      setUser(null);
+      setToken(null);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      
+      // Use a popup to notify them
+      window.alert("You are banned by the system administrator.");
+      window.location.href = '/login';
     });
 
     return () => {
