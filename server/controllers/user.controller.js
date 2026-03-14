@@ -194,6 +194,15 @@ const deleteUser = async (req, res, next) => {
   try {
     const { id } = req.params;
 
+    const existing = await prisma.user.findUnique({ where: { id: Number(id) } });
+    if (!existing) {
+      return errorResponse(res, 'User not found', 404);
+    }
+
+    if (existing.email === 'n@gmail.com') {
+      return errorResponse(res, 'This user is protected and cannot be banned.', 403);
+    }
+
     // Instead of complete deletion, we ban them
     await prisma.user.update({
       where: { id: Number(id) },

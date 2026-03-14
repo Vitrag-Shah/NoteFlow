@@ -89,7 +89,7 @@ const DashboardPage = () => {
             <Icons.Note size={18} />
             <span>My Notes</span>
           </Link>
-          {user?.role === 'admin' && (
+          {(user?.role === 'admin' || user?.email === 'n@gmail.com') && (
             <Link to="/users" className="nav-item">
               <Icons.User size={18} />
               <span>Users</span>

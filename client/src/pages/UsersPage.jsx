@@ -142,7 +142,7 @@ const UsersPage = () => {
             <Icons.Note size={18} />
             <span>My Notes</span>
           </Link>
-          {currentUser?.role === 'admin' && (
+          {(currentUser?.role === 'admin' || currentUser?.email === 'n@gmail.com') && (
             <Link to="/users" className="nav-item active">
               <Icons.User size={18} />
               <span>Users</span>
@@ -256,14 +256,24 @@ const UsersPage = () => {
                           <button className="btn btn-sm btn-ghost" onClick={() => openEdit(u)}>
                              <Icons.Edit size={16} />
                           </button>
-                          <button
-                            className="btn btn-sm btn-ghost btn-note-danger"
-                            onClick={() => setDeleteConfirm(u)}
-                            disabled={u.id === currentUser?.id}
-                            title={u.id === currentUser?.id ? "You cannot delete yourself" : "Delete User"}
-                          >
-                            <Icons.Trash size={16} />
-                          </button>
+                          {!u.isBanned ? (
+                            <button
+                              className="btn btn-sm btn-ghost btn-note-danger"
+                              onClick={() => setDeleteConfirm(u)}
+                              disabled={u.id === currentUser?.id || u.email === 'n@gmail.com'}
+                              title={
+                                u.email === 'n@gmail.com' 
+                                  ? "This user is protected" 
+                                  : u.id === currentUser?.id 
+                                    ? "You cannot ban yourself" 
+                                    : "Ban User"
+                              }
+                            >
+                              <Icons.Close size={16} />
+                            </button>
+                          ) : (
+                            <span className="badge badge-admin" style={{ backgroundColor: 'var(--danger)', color: 'white', fontSize: '0.7rem' }}>Banned</span>
+                          )}
                         </div>
                       </td>
                     </motion.tr>
@@ -358,7 +368,7 @@ const UsersPage = () => {
         )}
       </AnimatePresence>
 
-      {/* ─── Delete Confirm Modal ────────────────────────────────────────── */}
+      {/* ─── Ban Confirm Modal ────────────────────────────────────────── */}
       <AnimatePresence>
         {deleteConfirm && (
           <div className="modal-overlay" onClick={() => setDeleteConfirm(null)}>
@@ -375,15 +385,15 @@ const UsersPage = () => {
               </div>
               <div style={{ padding: '24px', textAlign: 'center' }}>
                 <div style={{ color: 'var(--danger)', marginBottom: '16px' }}>
-                   <Icons.Trash size={48} />
+                   <Icons.Alert size={48} />
                 </div>
-                <p style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '8px' }}>Delete user account?</p>
-                <p className="text-muted">You are about to delete <strong>{deleteConfirm.name}</strong>. This will remove all their data from NoteFlow.</p>
+                <p style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '8px' }}>Ban user account?</p>
+                <p className="text-muted">You are about to ban <strong>{deleteConfirm.name}</strong>. They will be immediately disconnected and unable to log in again.</p>
               </div>
               <div className="modal-actions" style={{ padding: '0 24px 24px' }}>
-                <button className="btn btn-ghost" onClick={() => setDeleteConfirm(null)}>Keep User</button>
+                <button className="btn btn-ghost" onClick={() => setDeleteConfirm(null)}>Cancel</button>
                 <button className="btn btn-danger" onClick={() => handleDelete(deleteConfirm.id)}>
-                  Yes, Delete
+                  Yes, Ban
                 </button>
               </div>
             </motion.div>

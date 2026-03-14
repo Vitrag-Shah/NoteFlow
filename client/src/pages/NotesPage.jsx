@@ -155,7 +155,7 @@ const NotesPage = () => {
             <Icons.Note size={18} />
             <span>My Notes</span>
           </Link>
-          {currentUser?.role === 'admin' && (
+          {(currentUser?.role === 'admin' || currentUser?.email === 'n@gmail.com') && (
             <Link to="/users" className="nav-item">
               <Icons.User size={18} />
               <span>Users</span>
