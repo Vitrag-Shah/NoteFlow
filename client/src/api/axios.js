@@ -1,17 +1,16 @@
 import axios from 'axios';
 
-const isProduction = import.meta.env.MODE === 'production';
-const baseURL = import.meta.env.VITE_API_URL || (isProduction ? '/api' : 'http://localhost:5000');
-
-if (isProduction && baseURL.includes('localhost')) {
-  console.warn('WARNING: Running in production mode, but API URL contains "localhost". This might cause connection issues.');
-}
-
 const api = axios.create({
-  baseURL,
+  baseURL: import.meta.env.DEV
+    ? "http://localhost:5000/api"
+    : "/api",
   headers: { 'Content-Type': 'application/json' },
   timeout: 10000,
 });
+
+if (!import.meta.env.DEV && window.location.hostname === "localhost") {
+  console.warn("Production build should not call localhost API");
+}
 
 // ─── Request Interceptor: attach JWT ──────────────────────────────────────
 api.interceptors.request.use(
