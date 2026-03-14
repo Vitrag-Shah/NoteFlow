@@ -52,6 +52,7 @@ const USER_SELECT = {
   name: true,
   email: true,
   role: true,
+  isBanned: true,
   createdAt: true,
   updatedAt: true,
 };
@@ -193,14 +194,19 @@ const deleteUser = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const existing = await prisma.user.findUnique({ where: { id: Number(id) } });
-    if (!existing) {
-      return errorResponse(res, 'User not found', 404);
+    // Instead of complete deletion, we ban them
+    await prisma.user.update({
+      where: { id: Number(id) },
+      data: { isBanned: true }
+    });
+
+    // Emit socket event to notify the banned user
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('user_banned', { userId: Number(id) });
     }
 
-    await prisma.user.delete({ where: { id: Number(id) } });
-
-    return successResponse(res, null, 'User deleted successfully');
+    return successResponse(res, null, 'User banned successfully');
   } catch (error) {
     next(error);
   }

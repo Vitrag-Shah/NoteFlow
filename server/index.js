@@ -1,5 +1,7 @@
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -56,12 +58,31 @@ app.use('/notes', noteRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
+// ─── Socket.IO Configuration ────────────────────────────────────────────────
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  }
+});
+
+// Store io instance in app so it can be accessed in controllers
+app.set('io', io);
+
+io.on('connection', (socket) => {
+  console.log('⚡ A user connected via Socket.IO');
+  socket.on('disconnect', () => {
+    console.log('🔴 User disconnected');
+  });
+});
+
 // ─── Start Server ──────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`\n🚀 Server running on port ${PORT}`);
   console.log(`📋 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔗 URL: http://localhost:${PORT}\n`);
 });
 
-module.exports = app;
+module.exports = { app, server };

@@ -47,6 +47,14 @@ api.interceptors.response.use(
       localStorage.removeItem('user');
       window.location.href = '/login';
     }
+
+    if (error.response?.status === 403 && error.response?.data?.message?.includes('banned')) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.alert("You are banned by the system administrator.");
+      window.location.href = '/login';
+    }
+    
     return Promise.reject(error);
   }
 );

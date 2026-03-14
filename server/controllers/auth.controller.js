@@ -90,6 +90,10 @@ const login = async (req, res, next) => {
       return errorResponse(res, 'Invalid email or password', 401);
     }
 
+    if (user.isBanned) {
+      return errorResponse(res, 'You are banned by the system administrator', 403);
+    }
+
     // Check password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {

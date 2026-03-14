@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { io } from 'socket.io-client';
 import { authAPI } from '../api/services';
 import toast from 'react-hot-toast';
 
@@ -35,6 +36,33 @@ export const AuthProvider = ({ children }) => {
     };
     verifyToken();
   }, []);
+
+  // Set up socket connection for real-time ban notifications
+  useEffect(() => {
+    if (!user) return;
+    
+    // Connect to same origin or VITE_API_URL dynamically
+    const socketURL = import.meta.env.DEV ? "http://localhost:5000" : "/";
+    const socket = io(socketURL);
+
+    socket.on('user_banned', (data) => {
+      if (data.userId === user.id) {
+        // Log out immediately
+        setUser(null);
+        setToken(null);
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        
+        // Use a popup to notify them
+        window.alert("You are banned by the system administrator.");
+        window.location.href = '/login';
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [user]);
 
   const login = useCallback(async (credentials) => {
     try {

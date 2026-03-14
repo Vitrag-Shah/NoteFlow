@@ -16,6 +16,7 @@ model User {
   email     String   @unique
   password  String
   role      String   @default("user")
+  isBanned  Boolean  @default(false)
   notes     Note[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

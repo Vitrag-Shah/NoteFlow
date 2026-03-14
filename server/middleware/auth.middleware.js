@@ -20,14 +20,18 @@ const protect = async (req, res, next) => {
     // Verify token
     const decoded = verifyToken(token);
 
-    // Check if user still exists
+    // Check if user still exists and is not banned
     const user = await prisma.user.findUnique({
       where: { id: decoded.id },
-      select: { id: true, name: true, email: true, role: true, createdAt: true },
+      select: { id: true, name: true, email: true, role: true, isBanned: true, createdAt: true },
     });
 
     if (!user) {
       return errorResponse(res, 'User no longer exists.', 401);
+    }
+
+    if (user.isBanned) {
+      return errorResponse(res, 'You are banned by the system administrator.', 403);
     }
 
     req.user = user;
