@@ -439,6 +439,29 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.02em; }
   color: var(--accent);
 }
 
+.nav-item-game {
+  color: #818cf8 !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-item-game::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+  transform: translateX(-100%);
+  transition: 0.5s;
+}
+
+.nav-item-game:hover::after {
+  transform: translateX(100%);
+}
+
+.nav-item-game .brand-icon {
+  filter: drop-shadow(0 0 5px var(--accent));
+}
+
 .sidebar-footer {
   border-top: 1px solid var(--border);
   padding-top: 16px;

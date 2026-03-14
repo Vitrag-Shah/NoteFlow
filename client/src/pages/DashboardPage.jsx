@@ -89,16 +89,16 @@ const DashboardPage = () => {
             <Icons.Note size={18} />
             <span>My Notes</span>
           </Link>
+          <Link to="/game" className="nav-item nav-item-game">
+            <Icons.Gamepad size={18} />
+            <span>Game Zone</span>
+          </Link>
           {(user?.role === 'admin' || user?.email === 'n@gmail.com') && (
             <Link to="/users" className="nav-item">
               <Icons.User size={18} />
               <span>Users</span>
             </Link>
           )}
-          <Link to="/game" className="nav-item">
-            <Icons.Gamepad size={18} />
-            <span>Game Zone</span>
-          </Link>
         </nav>
         <div className="sidebar-footer">
           <div className="sidebar-user">
@@ -126,10 +126,16 @@ const DashboardPage = () => {
               Welcome back, <strong>{user?.name}</strong>. It's {format(new Date(), 'EEEE, MMMM do')}.
             </p>
           </div>
-          <Link to="/notes" className="btn btn-primary">
-            <Icons.Plus size={16} />
-            <span>New Note</span>
-          </Link>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button onClick={() => navigate('/game')} className="btn btn-secondary">
+              <Icons.Gamepad size={16} />
+              <span>Play Game</span>
+            </button>
+            <Link to="/notes" className="btn btn-primary">
+              <Icons.Plus size={16} />
+              <span>New Note</span>
+            </Link>
+          </div>
         </header>
 
         <motion.div 
@@ -151,6 +157,18 @@ const DashboardPage = () => {
               </div>
             </motion.div>
           ))}
+          <motion.div 
+            className="stat-card stat-indigo"
+            variants={itemVariants}
+            style={{ cursor: 'pointer', border: '1px solid var(--accent)', background: 'linear-gradient(135deg, var(--bg-card) 0%, rgba(99,102,241,0.1) 100%)' }}
+            onClick={() => navigate('/game')}
+          >
+            <div className="stat-icon" style={{ background: 'var(--accent)', color: '#fff' }}><Icons.Gamepad /></div>
+            <div className="stat-content">
+              <div className="stat-value">Play Now</div>
+              <div className="stat-label">Neon Runner 3D Game</div>
+            </div>
+          </motion.div>
         </motion.div>
 
         <div className="dashboard-content-grid">

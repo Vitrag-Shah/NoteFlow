@@ -142,16 +142,16 @@ const UsersPage = () => {
             <Icons.Note size={18} />
             <span>My Notes</span>
           </Link>
+          <Link to="/game" className="nav-item nav-item-game">
+            <Icons.Gamepad size={18} />
+            <span>Game Zone</span>
+          </Link>
           {(currentUser?.role === 'admin' || currentUser?.email === 'n@gmail.com') && (
             <Link to="/users" className="nav-item active">
               <Icons.User size={18} />
               <span>Users</span>
             </Link>
           )}
-          <Link to="/game" className="nav-item">
-            <Icons.Gamepad size={18} />
-            <span>Game Zone</span>
-          </Link>
         </nav>
         <div className="sidebar-footer">
           <div className="sidebar-user">
