@@ -48,9 +48,9 @@ app.get('/health', (req, res) => {
 });
 
 // ─── Routes ────────────────────────────────────────────────────────────────
-app.use('/auth', authRoutes);
-app.use('/users', userRoutes);
-app.use('/notes', noteRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/notes', noteRoutes);
 
 // ─── Error Handling ────────────────────────────────────────────────────────
 app.use(notFound);
