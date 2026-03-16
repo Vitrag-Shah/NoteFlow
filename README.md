@@ -43,6 +43,10 @@ npm run dev
 
 ## 🚀 Deployment
 
+Deployment branches:
+- **main** → AWS deployment
+- **vercel-render** → Vercel + Render deployment
+
 Complete instructions are available in [DEPLOYMENT.md](./DEPLOYMENT.md).
 
 ### Quick Links
