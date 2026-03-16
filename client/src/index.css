@@ -239,7 +239,7 @@ h1, h2, h3 { font-weight: 700; letter-spacing: -0.02em; }
 .form-group textarea:focus {
   border-color: var(--border-focus);
   box-shadow: 0 0 0 3px var(--accent-glow);
-  background: #1c1c29;
+  background: var(--bg-hover);
 }
 
 .form-group input::placeholder { color: var(--text-muted); }
